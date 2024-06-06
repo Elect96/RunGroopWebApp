@@ -4,6 +4,7 @@ using RunGroopWebApp.Interfaces;
 using RunGroopWebApp.Models;
 using System.Diagnostics;
 
+// Repository is for database calls
 namespace RunGroopWebApp.Repository
 {
     public class ClubRepository : IClubRepository
