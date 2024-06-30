@@ -1,6 +1,6 @@
 ﻿@using RunGroopWebApp.Data.Enum
 @using RunGroopWebApp.ViewModels
-@model EditClubViewModel   
+@model EditRaceViewModel
 
 <form method="post" asp-action="Create" enctype="multipart/form-data">
     <input type="hidden" value="AddressId" id="AddressId" />
@@ -15,8 +15,8 @@
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="ClubCategory">Club Category</label>
-        <select asp-for="ClubCategory" asp-items="@Html.GetEnumSelectList<ClubCategory>()">
+        <label asp-for="RaceCategory">Race Category</label>
+        <select asp-for="RaceCategory" asp-items="@Html.GetEnumSelectList<RaceCategory>()">
             <Option>--Select--</Option>
         </select>
         <span asp-validation-for="Image" class="text-danger"></span>
