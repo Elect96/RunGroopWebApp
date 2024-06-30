@@ -63,20 +63,21 @@ namespace RunGroopWebApp.Controllers
             return View(raceVM);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var club = await _clubRepository.GetByIdAsync(id);
-            if (club == null) return View("Error");
-            var clubVM = new EditClubViewModel
+            var race = await _raceRepository.GetByIdAsync(id);
+            if (race == null) return View("Error");
+            var raceVM = new EditRaceViewModel
             {
-                Title = club.Title,
-                Description = club.Description,
-                AddressId = club.AddressId,
-                Address = club.Address,
-                URL = club.Image,
-                ClubCategory = club.ClubCategory
+                Title = race.Title,
+                Description = race.Description,
+                AddressId = race.AddressId,
+                Address = race.Address,
+                URL = race.Image,
+                RaceCategory = race.RaceCategory
             };
-            return View(clubVM);
+            return View(raceVM);
         }
 
         [HttpPost]
@@ -85,41 +86,42 @@ namespace RunGroopWebApp.Controllers
             if (!ModelState.IsValid)
             {
                 ModelState.AddModelError("", "Failed to edit club");
-                return View("Edit", raceVM);
+                return View(raceVM);
             }
 
             var userRace = await _raceRepository.GetByIdAsyncNoTracking(id);
 
-            if (userRace != null)
+            if (userRace == null)
             {
-                try
-                {
-                    await _photoService.DeletePhotoAsync(userRace.Image);
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "Could not delete photo");
-                    return View(raceVM);
-                }
-                var photoResult = await _photoService.AddPhotoAsync(raceVM.Image);
-
-                var race = new Race
-                {
-                    Id = id,
-                    Title = raceVM.Title,
-                    Description = raceVM.Description,
-                    Image = photoResult.Url.ToString(),
-                    AddressId = raceVM.AddressId,
-                    Address = raceVM.Address,
-                };
-
-                _raceRepository.Update(race);
-                return RedirectToAction("Index");
+                return View("Error");
             }
-            else
+
+            var photoResult = await _photoService.AddPhotoAsync(raceVM.Image);
+
+            if (photoResult.Error != null)
             {
+                ModelState.AddModelError("Image", "Photo upload failed");
                 return View(raceVM);
             }
+
+            if (!string.IsNullOrEmpty(userRace.Image))
+            {
+                _ = _photoService.DeletePhotoAsync(userRace.Image);
+            }
+
+            var race = new Race
+            {
+                Id = id,
+                Title = raceVM.Title,
+                Description = raceVM.Description,
+                Image = photoResult.Url.ToString(),
+                AddressId = raceVM.AddressId,
+                Address = raceVM.Address,
+            };
+
+            _raceRepository.Update(race);
+
+            return RedirectToAction("Index");
         }
     }
 }
